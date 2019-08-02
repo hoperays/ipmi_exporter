@@ -74,14 +74,21 @@ func convertOutput(result [][]string) (metrics []metric, err error) {
 		for n := range res {
 			res[n] = strings.TrimSpace(res[n])
 		}
-		value, err = convertValue(res[1], res[2])
-		if err != nil {
-			log.Errorf("could not parse ipmi output: %s", err)
-		}
 
-		currentMetric.value = value
-		currentMetric.unit = res[2]
-		currentMetric.metricsname = res[0]
+		//Determine the length of the array to prevent it from
+		//crossing the boundary
+		if len(res) >= 3 {
+			value, err = convertValue(res[1], res[2])
+			if err != nil {
+				log.Errorf("could not parse ipmi output: %s", err)
+			}
+
+			currentMetric.value = value
+			currentMetric.unit = res[2]
+			currentMetric.metricsname = res[0]
+		} else {
+			log.Errorf("could not parse ipmi output, and the output is error")
+		}
 
 		metrics = append(metrics, currentMetric)
 	}
